@@ -13,47 +13,51 @@ from flask import Flask, render_template, request, jsonify
 from src.model import UNet
 from src.ndvi import compute_ndvi
 
+from src.enhanced_cost import generate_enhanced_cost
+from src.enhanced_astar import astar
+from src.smooth import smooth_path
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # --- A* PATHFINDING LOGIC ---
-directions = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
+# directions = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(-1,1),(1,-1),(1,1)]
 
-def heuristic(a, b):
-    return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+# def heuristic(a, b):
+#     return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
-def astar(cost_map, start, goal):
-    HEIGHT, WIDTH = cost_map.shape
-    open_set = []
-    heapq.heappush(open_set, (0, start))
-    came_from = {}
-    g_score = {start: 0}
-    f_score = {start: heuristic(start, goal)}
-    while open_set:
-        current = heapq.heappop(open_set)[1]
-        if current == goal:
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            path.append(start)
-            return path[::-1]
-        for dx, dy in directions:
-            nx, ny = current[0]+dx, current[1]+dy
-            neighbor = (nx, ny)
-            if nx < 0 or ny < 0 or nx >= HEIGHT or ny >= WIDTH:
-                continue
-            terrain_cost = cost_map[nx, ny] * 8
-            movement_cost = 1.4 if dx != 0 and dy != 0 else 1.0
-            tentative_g = g_score[current] + terrain_cost + movement_cost
-            if neighbor not in g_score or tentative_g < g_score[neighbor]:
-                came_from[neighbor] = current
-                g_score[neighbor] = tentative_g
-                f_score[neighbor] = tentative_g + 0.7 * heuristic(neighbor, goal)
-                heapq.heappush(open_set, (f_score[neighbor], neighbor))
-    return None
+# def astar(cost_map, start, goal):
+#     HEIGHT, WIDTH = cost_map.shape
+#     open_set = []
+#     heapq.heappush(open_set, (0, start))
+#     came_from = {}
+#     g_score = {start: 0}
+#     f_score = {start: heuristic(start, goal)}
+#     while open_set:
+#         current = heapq.heappop(open_set)[1]
+#         if current == goal:
+#             path = []
+#             while current in came_from:
+#                 path.append(current)
+#                 current = came_from[current]
+#             path.append(start)
+#             return path[::-1]
+#         for dx, dy in directions:
+#             nx, ny = current[0]+dx, current[1]+dy
+#             neighbor = (nx, ny)
+#             if nx < 0 or ny < 0 or nx >= HEIGHT or ny >= WIDTH:
+#                 continue
+#             terrain_cost = cost_map[nx, ny] * 8
+#             movement_cost = 1.4 if dx != 0 and dy != 0 else 1.0
+#             tentative_g = g_score[current] + terrain_cost + movement_cost
+#             if neighbor not in g_score or tentative_g < g_score[neighbor]:
+#                 came_from[neighbor] = current
+#                 g_score[neighbor] = tentative_g
+#                 f_score[neighbor] = tentative_g + 0.7 * heuristic(neighbor, goal)
+#                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
+#     return None
 
 # --- MODEL LOADING ---
 _model = None
@@ -191,7 +195,7 @@ def inference():
         return jsonify({'error': 'No image loaded. Load data first.'}), 400
     img_raw = np.load("outputs/current_img.npy")
     try:
-        _, img_chw = normalize_img(img_raw)
+        rgb, img_chw = normalize_img(img_raw)
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
@@ -227,7 +231,7 @@ def cost_surface():
         return jsonify({'error': 'No image loaded.'}), 400
 
     img_raw = np.load("outputs/current_img.npy")
-    _, img_chw = normalize_img(img_raw)
+    rgb, img_chw = normalize_img(img_raw)
     segmentation = np.load("outputs/probability_map.npy")
 
     try:
@@ -239,9 +243,18 @@ def cost_surface():
         red = img_chw[min(2, C-1)]
         ndvi = (nir - red) / (nir + red + 1e-8)
 
-    ndvi_norm = (ndvi + 1) / 2
-    cost = (w_ndvi * ndvi_norm) + (w_seg * segmentation)
-    cost = (cost - cost.min()) / (cost.max() - cost.min() + 1e-8)
+    cost, road_prior = generate_enhanced_cost(
+            rgb,
+            segmentation,
+            ndvi,
+            w_ndvi=w_ndvi,
+            w_seg=w_seg,
+            w_road=0.25
+    )
+    np.save(
+        "outputs/road_prior.npy",
+        road_prior
+    )
     np.save("outputs/cost_surface.npy", cost)
 
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -277,6 +290,7 @@ def find_path():
     goal_x  = max(0, min(goal_x,  WIDTH-1))
 
     path = astar(cost_surface, (start_y, start_x), (goal_y, goal_x))
+    path = smooth_path(path)
     if path is None:
         return jsonify({'error': 'No valid path found between these points.'}), 400
 
