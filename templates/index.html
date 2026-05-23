@@ -671,6 +671,91 @@
   .marker-start { background: #39ff14; box-shadow: 0 0 6px #39ff14; }
   .marker-goal  { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
 
+  /* Interactive image frame */
+  .image-frame.clickable {
+    cursor: crosshair;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .image-frame.clickable:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px #39e87a18;
+  }
+  .image-frame.clickable img {
+    cursor: crosshair;
+  }
+
+  /* Mode selector buttons */
+  .point-selector-mode {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding: 10px;
+    background: var(--bg-deep);
+    border-radius: 6px;
+    border: 1px solid var(--border-subtle);
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border-mid);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .mode-btn:hover {
+    border-color: var(--accent-dim);
+    color: var(--text-primary);
+  }
+  .mode-btn.active {
+    border-color: var(--accent-primary);
+    background: var(--accent-muted);
+    color: var(--accent-primary);
+    box-shadow: var(--glow-sm);
+  }
+  .mode-btn::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .mode-btn.mode-start::before {
+    background: #39ff14;
+    box-shadow: 0 0 4px #39ff14;
+  }
+  .mode-btn.mode-goal::before {
+    background: #ff4444;
+    box-shadow: 0 0 4px #ff4444;
+  }
+
+  /* Click feedback overlay */
+  .click-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--accent-primary);
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-primary);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    box-shadow: var(--glow-md);
+  }
+
   /* ---- RESULT BANNER ---- */
   .result-banner {
     padding: 10px 16px;
@@ -1029,6 +1114,18 @@
         <div class="card">
           <div class="card-title">Waypoint Configuration</div>
 
+          <div class="point-selector-mode" id="mode-selector">
+            <button class="mode-btn mode-start active" onclick="setPointMode('start')" title="Click image to select START point">
+              START
+            </button>
+            <button class="mode-btn mode-goal" onclick="setPointMode('goal')" title="Click image to select GOAL point">
+              GOAL
+            </button>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:1rem; padding:8px; background:var(--bg-deep); border-radius:4px; border-left:2px solid var(--accent-dim);">
+            💡 Click on the route image to select points, or enter coordinates manually
+          </div>
+
           <div class="coord-grid">
             <div class="coord-group">
               <div class="point-marker">
@@ -1111,6 +1208,7 @@
     inferDone: false,
     costDone: false,
     imgH: 128, imgW: 128,
+    pointMode: 'start',  // 'start' or 'goal'
   };
 
   // Update timestamp
@@ -1372,6 +1470,96 @@
     el.classList.remove('done', 'active');
     if (status) el.classList.add(status);
   }
+
+  // =============================================
+  //  INTERACTIVE POINT SELECTION
+  // =============================================
+  function setPointMode(mode) {
+    state.pointMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector('.mode-btn.mode-' + mode).classList.add('active');
+  }
+
+  function attachImageClickHandler() {
+    const pathFrame = document.getElementById('path-frame');
+    // Remove any existing click handler
+    pathFrame.onclick = null;
+    
+    // Get the image inside the frame
+    const img = pathFrame.querySelector('img');
+    if (!img) return;
+
+    // Make frame visually interactive
+    pathFrame.classList.add('clickable');
+
+    // Attach click handler to the image
+    img.onclick = function(event) {
+      event.stopPropagation();
+      
+      // Get image dimensions and position
+      const rect = img.getBoundingClientRect();
+      const imgX = event.clientX - rect.left;
+      const imgY = event.clientY - rect.top;
+
+      // Convert click position to data coordinates
+      const dataX = Math.round((imgX / rect.width) * state.imgW);
+      const dataY = Math.round((imgY / rect.height) * state.imgH);
+
+      // Clamp to valid range
+      const x = Math.max(0, Math.min(dataX, state.imgW - 1));
+      const y = Math.max(0, Math.min(dataY, state.imgH - 1));
+
+      // Update the appropriate input fields
+      if (state.pointMode === 'start') {
+        document.getElementById('start-y').value = y;
+        document.getElementById('start-x').value = x;
+      } else {
+        document.getElementById('goal-y').value = y;
+        document.getElementById('goal-x').value = x;
+      }
+
+      // Visual feedback
+      showClickFeedback(img, event.clientX - rect.left, event.clientY - rect.top, state.pointMode);
+
+      // Auto-switch to goal mode after selecting start
+      if (state.pointMode === 'start') {
+        setTimeout(() => setPointMode('goal'), 300);
+      }
+    };
+  }
+
+  function showClickFeedback(img, x, y) {
+    const pathFrame = document.getElementById('path-frame');
+    
+    // Remove existing hint
+    const oldHint = pathFrame.querySelector('.click-hint');
+    if (oldHint) oldHint.remove();
+
+    // Show temporary feedback
+    const hint = document.createElement('div');
+    hint.className = 'click-hint';
+    hint.style.left = x + 'px';
+    hint.style.top = y + 'px';
+    hint.textContent = state.pointMode === 'start' ? '✓ START' : '✓ GOAL';
+    pathFrame.style.position = 'relative';
+    pathFrame.appendChild(hint);
+
+    setTimeout(() => {
+      if (hint.parentNode) hint.remove();
+    }, 500);
+  }
+
+  // Override setImage to attach click handler when path image is displayed
+  const originalSetImage = window.setImage;
+  window.setImage = function(frameId, b64, label) {
+    originalSetImage(frameId, b64, label);
+    if (frameId === 'path-frame') {
+      setTimeout(() => attachImageClickHandler(), 50);
+    }
+  };
+
 </script>
 </body>
 </html>
