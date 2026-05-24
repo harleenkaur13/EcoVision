@@ -10,32 +10,62 @@
      DESIGN SYSTEM — DEEP CANOPY / SATELLITE INTELLIGENCE
   ========================================================= */
   :root {
-    --bg-void:       #050906;
-    --bg-deep:       #080f08;
-    --bg-panel:      #0d170d;
-    --bg-card:       #111f11;
-    --bg-elevated:   #162416;
-    --border-subtle: #1a2e1a;
-    --border-mid:    #243824;
-    --border-bright: #2d5c2d;
-    --accent-primary: #39e87a;
-    --accent-glow:    #39e87a88;
-    --accent-dim:     #1e6e3a;
-    --accent-muted:   #2a4a32;
-    --accent-warm:    #7eff7e;
-    --text-primary:   #c8e6c9;
-    --text-secondary: #7aad82;
-    --text-muted:     #4a7050;
-    --text-mono:      #5aff8a;
-    --danger:         #ff5c5c;
-    --warning:        #ffb347;
-    --info:           #47c8ff;
+    --bg-void:       #f4f7f3;
+    --bg-deep:       #edf6ee;
+    --bg-panel:      #f7faf6;
+    --bg-card:       #ffffff;
+    --bg-elevated:   #f1f5ef;
+    --border-subtle: #e6eee6;
+    --border-mid:    #dfe9df;
+    --border-bright: #cfe3d1;
+    --accent-primary: #2a6f53;
+    --accent-glow:    #2a6f5388;
+    --accent-dim:     #7aa588;
+    --accent-muted:   #e9f4ec;
+    --accent-warm:    #5fbf8a;
+    --text-primary:   #123524;
+    --text-secondary: #355f4c;
+    --text-muted:     #6b8076;
+    --text-mono:      #2a6f53;
+    --danger:         #c23b3b;
+    --warning:        #c77b2e;
+    --info:           #3b82f6;
     --font-display:   'Rajdhani', sans-serif;
     --font-mono:      'Share Tech Mono', monospace;
-    --glow-sm:  0 0 8px var(--accent-glow);
-    --glow-md:  0 0 20px var(--accent-glow), 0 0 40px #39e87a22;
-    --glow-lg:  0 0 40px var(--accent-glow), 0 0 80px #39e87a18;
-    --shadow-panel: 0 4px 32px #00000088, inset 0 1px 0 #1e3a1e;
+    --glow-sm:  0 0 8px rgba(42,111,83,0.12);
+    --glow-md:  0 0 18px rgba(42,111,83,0.10);
+    --glow-lg:  0 0 30px rgba(42,111,83,0.08);
+    --shadow-panel: 0 6px 24px rgba(16,24,18,0.06);
+  }
+
+  body[data-theme="dark"] {
+    --bg-void:       #08120f;
+    --bg-deep:       #0c1915;
+    --bg-panel:      #11221b;
+    --bg-card:       #16271f;
+    --bg-elevated:   #172923;
+    --border-subtle: #20423a;
+    --border-mid:    #1a3a31;
+    --border-bright: #2a6656;
+    --accent-primary: #7fe4aa;
+    --accent-glow:    #7fe4aa88;
+    --accent-dim:     #3c8f6f;
+    --accent-muted:   #11382e;
+    --accent-warm:    #9af0c1;
+    --text-primary:   #d8f1e4;
+    --text-secondary: #9ad6b9;
+    --text-muted:     #7a9b8e;
+    --text-mono:      #7fe4aa;
+    --danger:         #ff8b8b;
+    --warning:        #f0b172;
+    --info:           #7fb8ff;
+    --glow-sm:  0 0 8px rgba(126,228,170,0.18);
+    --glow-md:  0 0 18px rgba(126,228,170,0.14);
+    --glow-lg:  0 0 30px rgba(126,228,170,0.10);
+    --shadow-panel: 0 6px 24px rgba(0,0,0,0.35);
+    background-image:
+      radial-gradient(ellipse 60% 40% at 10% -20%, rgba(126,228,170,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 120%, rgba(126,228,170,0.06) 0%, transparent 60%);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,9 +80,8 @@
     min-height: 100vh;
     overflow-x: hidden;
     background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, #0d2a0d44 0%, transparent 70%),
-      radial-gradient(ellipse 60% 40% at 80% 110%, #0a1e0a33 0%, transparent 60%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='none'/%3E%3Ccircle cx='30' cy='30' r='0.4' fill='%2339e87a' opacity='0.07'/%3E%3Cline x1='0' y1='30' x2='60' y2='30' stroke='%2339e87a' stroke-width='0.15' opacity='0.04'/%3E%3Cline x1='30' y1='0' x2='30' y2='60' stroke='%2339e87a' stroke-width='0.15' opacity='0.04'/%3E%3C/svg%3E");
+      radial-gradient(ellipse 60% 40% at 10% -20%, rgba(42,111,83,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 30% at 100% 120%, rgba(42,111,83,0.04) 0%, transparent 60%);
   }
 
   /* ---- SCROLLBAR ---- */
@@ -70,7 +99,7 @@
     padding: 0 2.5rem;
     height: 64px;
     border-bottom: 1px solid var(--border-subtle);
-    background: linear-gradient(90deg, var(--bg-deep) 0%, #0b1a0b 100%);
+    background: linear-gradient(90deg, var(--bg-deep) 0%, var(--bg-panel) 100%);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -85,10 +114,10 @@
 
   .logo-icon {
     width: 36px; height: 36px;
-    border: 1.5px solid var(--accent-primary);
+    border: 1px solid rgba(42,111,83,0.12);
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--glow-sm);
+    box-shadow: none;
     position: relative;
     overflow: hidden;
   }
@@ -104,7 +133,6 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     color: var(--accent-primary);
-    text-shadow: var(--glow-sm);
     text-transform: uppercase;
   }
   .logo-sub {
@@ -148,6 +176,16 @@
     color: var(--text-secondary);
   }
 
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+  }
+  .theme-toggle .btn {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    letter-spacing: 0.07em;
+  }
+
   /* =========================================================
      LAYOUT
   ========================================================= */
@@ -161,7 +199,7 @@
      SIDEBAR
   ========================================================= */
   aside {
-    background: var(--bg-panel);
+    background: transparent;
     border-right: 1px solid var(--border-subtle);
     padding: 1.5rem 1.25rem;
     display: flex;
@@ -209,15 +247,15 @@
     text-align: left;
   }
   .radio-option:hover {
-    border-color: var(--accent-dim);
+    border-color: var(--accent-primary);
     color: var(--text-primary);
     background: var(--bg-card);
   }
   .radio-option.active {
     border-color: var(--accent-primary);
-    color: var(--accent-warm);
-    background: var(--accent-muted);
-    box-shadow: var(--glow-sm);
+    color: var(--accent-primary);
+    background: var(--bg-elevated);
+    box-shadow: none;
   }
   .radio-option .radio-pip {
     width: 10px; height: 10px;
@@ -236,7 +274,7 @@
 
   /* File upload */
   .file-upload-zone {
-    border: 1.5px dashed var(--border-mid);
+    border: 1px dashed var(--border-mid);
     border-radius: 8px;
     padding: 1.2rem;
     text-align: center;
@@ -247,8 +285,7 @@
   }
   .file-upload-zone:hover, .file-upload-zone.drag-over {
     border-color: var(--accent-primary);
-    background: var(--accent-muted);
-    box-shadow: var(--glow-sm);
+    background: var(--bg-elevated);
   }
   .file-upload-zone .upload-icon {
     font-size: 1.8rem;
@@ -873,7 +910,7 @@
   }
 </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="scanline-overlay"></div>
 
@@ -901,6 +938,9 @@
       <span id="device-status">SYSTEM ONLINE</span>
     </div>
     <div class="device-badge" id="device-badge">CPU</div>
+    <div class="theme-toggle">
+      <button id="theme-toggle" class="btn btn-ghost" onclick="toggleTheme()" title="Toggle visual theme">Dark mode</button>
+    </div>
   </div>
 </header>
 
@@ -1058,28 +1098,15 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Weight Configuration</div>
-          <div class="slider-group">
-            <div class="slider-row">
-              <div class="slider-header">
-                <span class="slider-name">NDVI Weight</span>
-                <span class="slider-val" id="val-ndvi">0.45</span>
-              </div>
-              <input type="range" id="slider-ndvi" min="0" max="1" step="0.01" value="0.45"
-                     oninput="document.getElementById('val-ndvi').textContent=parseFloat(this.value).toFixed(2)" />
+            <div style="padding:12px; font-size:0.95rem; color:var(--text-muted);">
+              <div style="margin-bottom:6px;"><strong>Fixed weights</strong> — predefined and not adjustable in the UI</div>
+              <div style="font-family:var(--font-mono);">NDVI weight: <strong>0.45</strong></div>
+              <div style="font-family:var(--font-mono);">Infrastructure weight: <strong>0.45</strong></div>
             </div>
-            <div class="slider-row">
-              <div class="slider-header">
-                <span class="slider-name">Infrastructure Weight</span>
-                <span class="slider-val" id="val-seg">0.45</span>
-              </div>
-              <input type="range" id="slider-seg" min="0" max="1" step="0.01" value="0.45"
-                     oninput="document.getElementById('val-seg').textContent=parseFloat(this.value).toFixed(2)" />
+            <div style="margin-top:1rem; padding:10px; background:var(--bg-deep); border-radius:6px; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); line-height:1.7;">
+              cost = (0.45 × ndvi_norm) + (0.45 × segmentation)<br>
+              cost ∈ [0, 1] after normalization
             </div>
-          </div>
-          <div style="margin-top:1rem; padding:10px; background:var(--bg-deep); border-radius:6px; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); line-height:1.7;">
-            cost = (w_ndvi × ndvi_norm) + (w_seg × segmentation)<br>
-            cost ∈ [0, 1] after normalization
-          </div>
         </div>
         <div class="card">
           <div class="card-title">Cost Surface Visualization</div>
@@ -1211,6 +1238,10 @@
     pointMode: 'start',  // 'start' or 'goal'
   };
 
+  let pathClickHandler = null;
+
+  const THEME_KEY = 'ecovision-theme';
+
   // Update timestamp
   setInterval(() => {
     document.getElementById('ts').textContent = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
@@ -1218,6 +1249,7 @@
 
   // ---- Connection check on load ----
   window.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     fetch('/api/device')
       .then(r => r.json())
       .then(d => {
@@ -1232,6 +1264,25 @@
         showStatus('load-status', 'error', '✗ Flask server not running. Start: python app.py');
       });
   });
+
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY) || 'light';
+    document.body.dataset.theme = saved;
+    updateThemeButton();
+  }
+
+  function toggleTheme() {
+    const next = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.body.dataset.theme = next;
+    localStorage.setItem(THEME_KEY, next);
+    updateThemeButton();
+  }
+
+  function updateThemeButton() {
+    const button = document.getElementById('theme-toggle');
+    if (!button) return;
+    button.textContent = document.body.dataset.theme === 'dark' ? 'Light mode' : 'Dark mode';
+  }
 
   // =============================================
   //  TABS
@@ -1371,16 +1422,13 @@
       showBanner('cost-result', 'error', '✗ Run Model Inference first (Tab 1).');
       return;
     }
-    const w_ndvi = parseFloat(document.getElementById('slider-ndvi').value);
-    const w_seg  = parseFloat(document.getElementById('slider-seg').value);
+    // Use predefined, fixed weights (UI no longer exposes sliders)
+    const w_ndvi = 0.45;
+    const w_seg  = 0.45;
     setLoadingBtn('cost-btn', true);
     showBanner('cost-result', 'info', '⟳ Computing cost surface...');
     try {
-      const res = await fetch('/api/cost_surface', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ w_ndvi, w_seg })
-      });
+      const res = await fetch('/api/cost_surface', { method: 'POST' });
       let data;
       try { data = await res.json(); }
       catch { throw new Error('Server error. Check Flask terminal.'); }
@@ -1484,34 +1532,30 @@
 
   function attachImageClickHandler() {
     const pathFrame = document.getElementById('path-frame');
-    // Remove any existing click handler
-    pathFrame.onclick = null;
-    
-    // Get the image inside the frame
     const img = pathFrame.querySelector('img');
-    if (!img) return;
+    if (!img) {
+      pathFrame.classList.remove('clickable');
+      return;
+    }
 
-    // Make frame visually interactive
     pathFrame.classList.add('clickable');
+    if (pathClickHandler) {
+      pathFrame.removeEventListener('click', pathClickHandler);
+    }
 
-    // Attach click handler to the image
-    img.onclick = function(event) {
-      event.stopPropagation();
-      
-      // Get image dimensions and position
+    pathClickHandler = function(event) {
       const rect = img.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
       const imgX = event.clientX - rect.left;
       const imgY = event.clientY - rect.top;
+      if (imgX < 0 || imgY < 0 || imgX > rect.width || imgY > rect.height) return;
 
-      // Convert click position to data coordinates
-      const dataX = Math.round((imgX / rect.width) * state.imgW);
-      const dataY = Math.round((imgY / rect.height) * state.imgH);
-
-      // Clamp to valid range
+      const dataX = Math.round((imgX / rect.width) * (state.imgW - 1));
+      const dataY = Math.round((imgY / rect.height) * (state.imgH - 1));
       const x = Math.max(0, Math.min(dataX, state.imgW - 1));
       const y = Math.max(0, Math.min(dataY, state.imgH - 1));
 
-      // Update the appropriate input fields
       if (state.pointMode === 'start') {
         document.getElementById('start-y').value = y;
         document.getElementById('start-x').value = x;
@@ -1520,14 +1564,10 @@
         document.getElementById('goal-x').value = x;
       }
 
-      // Visual feedback
-      showClickFeedback(img, event.clientX - rect.left, event.clientY - rect.top, state.pointMode);
-
-      // Auto-switch to goal mode after selecting start
-      if (state.pointMode === 'start') {
-        setTimeout(() => setPointMode('goal'), 300);
-      }
+      showClickFeedback(img, imgX, imgY);
     };
+
+    pathFrame.addEventListener('click', pathClickHandler);
   }
 
   function showClickFeedback(img, x, y) {
